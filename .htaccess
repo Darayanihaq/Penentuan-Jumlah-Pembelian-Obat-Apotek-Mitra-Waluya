@@ -1,0 +1,7 @@
+# Aktifkan mod_rewrite
+RewriteEngine On
+
+# Jika bukan file atau folder, arahkan ke index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
