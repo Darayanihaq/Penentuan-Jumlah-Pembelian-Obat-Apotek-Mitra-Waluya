@@ -5,184 +5,158 @@ include '../../config/db.php';
 include '../../templates/header.php';
 onlyAdmin();
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// === QUERY ke DATABASE ===
+// Ambil total data untuk statistik
 $totalObat = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM obat"))['total'];
 $totalSupplier = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM supplier"))['total'];
 $totalPengguna = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM pengguna"))['total'];
 $totalPenerimaan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM penerimaan_obat"))['total'];
-$totalPenjualan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM penjualan_obat"))['total'];
-$obatHampirHabis = mysqli_query($conn, "SELECT nama_obat, stok FROM obat WHERE stok <= 10 ORDER BY stok ASC LIMIT 5");
-$obatKedaluwarsa = mysqli_query($conn, "SELECT nama_obat, tgl_kedaluwarsa FROM obat WHERE tgl_kedaluwarsa <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) ORDER BY tgl_kedaluwarsa ASC LIMIT 5");
+$totalPenjualan = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM detail_penjualan"))['total'];
+$totalPembelian = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM pembelian"))['total'];
 
-// Grafik 5 obat terlaris
-$obatTerlaris = mysqli_query($conn, "
-    SELECT o.nama_obat, SUM(p.jml_jual) AS total_jual
-    FROM penjualan_obat p
-    JOIN obat o ON p.kode_obat = o.kode_obat
-    GROUP BY p.kode_obat
-    ORDER BY total_jual DESC
-    LIMIT 5
-");
-
-// Grafik penerimaan per bulan (12 bulan terakhir)
-$penerimaanPerBulan = mysqli_query($conn, "
-    SELECT DATE_FORMAT(tgl_penerimaan, '%b %Y') AS bulan, SUM(jml_masuk) AS total
-    FROM penerimaan_obat
-    WHERE tgl_penerimaan >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-    GROUP BY YEAR(tgl_penerimaan), MONTH(tgl_penerimaan)
-    ORDER BY tgl_penerimaan ASC
-");
-
-// Grafik penjualan per bulan (12 bulan terakhir)
-$penjualanPerBulan = mysqli_query($conn, "
-    SELECT DATE_FORMAT(tgl_jual, '%b %Y') AS bulan, SUM(jml_jual) AS total
-    FROM penjualan_obat
-    WHERE tgl_jual >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-    GROUP BY YEAR(tgl_jual), MONTH(tgl_jual)
-    ORDER BY tgl_jual ASC
-");
-
-// Siapkan data untuk Chart.js
-$labelObat = [];
-$dataObat = [];
-if ($obatTerlaris && mysqli_num_rows($obatTerlaris) > 0) {
-    while ($row = mysqli_fetch_assoc($obatTerlaris)) {
-        $labelObat[] = $row['nama_obat'];
-        $dataObat[] = $row['total_jual'];
-    }
-} else {
-    $labelObat = ['-'];
-    $dataObat = [0];
+// Hitung pengguna per role
+$roles = ['Apoteker', 'Pengadaan', 'Pelayanan', 'Administrator'];
+$penggunaPerRole = [];
+foreach ($roles as $role) {
+    $roleEscaped = mysqli_real_escape_string($conn, $role);
+    $query = mysqli_query($conn, "SELECT COUNT(*) AS jumlah FROM pengguna WHERE role = '$roleEscaped'");
+    $penggunaPerRole[$role] = mysqli_fetch_assoc($query)['jumlah'];
 }
 
-$labelPenerimaan = [];
-$dataPenerimaan = [];
-if ($penerimaanPerBulan && mysqli_num_rows($penerimaanPerBulan) > 0) {
-    while ($row = mysqli_fetch_assoc($penerimaanPerBulan)) {
-        $labelPenerimaan[] = $row['bulan'];
-        $dataPenerimaan[] = $row['total'];
-    }
-} else {
-    $labelPenerimaan = ['-'];
-    $dataPenerimaan = [0];
-}
+// Ambil data jenis obat untuk pie chart
+$jenisObatQuery = mysqli_query($conn, "SELECT jenis, COUNT(*) AS jumlah FROM obat GROUP BY jenis");
+$labelJenis = [];
+$dataJenis = [];
 
-$labelPenjualan = $labelPenerimaan;
-$dataPenjualan = [];
-if ($penjualanPerBulan && mysqli_num_rows($penjualanPerBulan) > 0) {
-    while ($row = mysqli_fetch_assoc($penjualanPerBulan)) {
-        $dataPenjualan[] = $row['total'];
-    }
-} else {
-    $dataPenjualan = [0];
+while ($row = mysqli_fetch_assoc($jenisObatQuery)) {
+    $labelJenis[] = $row['jenis'];
+    $dataJenis[] = $row['jumlah'];
 }
 ?>
 
-<!-- Wrapper Layout -->
-<div class="layout-wrapper">
+<link rel="stylesheet" href="<?= BASE_URL ?>css/style.css?v=<?= time(); ?>">
 
-    <!-- Sidebar -->
+<div class="layout-wrapper">
     <?php include '../../templates/sidebar_administrator.php'; ?>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <div class="px-4 py-4">
-            <h2 class="fw-semibold">Dashboard Admin</h2>
-            <div class="row g-3 py-2">
-                <div class="col-md-3">
-                    <div class="card shadow-sm p-3">
-                        <h6>Total Obat</h6>
-                        <p class="fs-5 fw-semibold mb-0"><?= $totalObat ?> Jenis</p>
+        <div class="px-3 py-2">
+
+            <!-- Header -->
+            <div class="bg-white shadow-sm p-4 mb-4 rounded fade-in">
+                <h4 class="mb-1 fw-semibold">Selamat Datang, Administrator 👋</h4>
+                <p class="text-muted mb-0">Berikut adalah ringkasan data penting dan akses cepat dalam sistem apotek.
+                </p>
+            </div>
+
+            <!-- Grid utama -->
+            <div class="row g-3 fade-in">
+
+                <!-- Kolom kiri: statistik -->
+                <div class="col-md-8">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card bg-white text-dark px-3 py-4 h-100 card-hover">
+                                <h6 class="mb-1"><i class="bi bi-capsule me-2"></i>Total Obat</h6>
+                                <p class="fs-5 fw-semibold mb-0"><?= $totalObat ?> Obat</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-white text-dark px-3 py-4 h-100 card-hover">
+                                <h6 class="mb-1"><i class="bi bi-truck me-2"></i>Total Supplier</h6>
+                                <p class="fs-5 fw-semibold mb-0"><?= $totalSupplier ?> Supplier</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-white text-dark px-3 py-4 h-100 card-hover">
+                                <h6 class="mb-1"><i class="bi bi-people-fill me-2"></i>Total Pengguna</h6>
+                                <p class="fs-5 fw-semibold mb-0"><?= $totalPengguna ?> User</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-4">
+                            <div class="card bg-white text-dark px-3 py-4 h-100 card-hover">
+                                <h6 class="mb-1"><i class="bi bi-box-arrow-in-down me-2"></i>Penerimaan Obat</h6>
+                                <p class="fs-5 fw-semibold mb-0"><?= $totalPenerimaan ?> Data</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-white text-dark px-3 py-4 h-100 card-hover">
+                                <h6 class="mb-1"><i class="bi bi-cart-check me-2"></i>Penjualan Obat</h6>
+                                <p class="fs-5 fw-semibold mb-0"><?= $totalPenjualan ?> Data</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-white text-dark px-3 py-4 h-100 card-hover">
+                                <h6 class="mb-1"><i class="bi bi-bag-check me-2"></i>Pembelian Obat</h6>
+                                <p class="fs-5 fw-semibold mb-0"><?= $totalPembelian ?> Data</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-2 fade-in">
+                        <!-- Aksi Cepat -->
+                        <div class="col-md-12">
+                            <div class="card shadow-sm p-4 h-100 fade-in">
+                                <h6 class="fw-semibold mb-4"><i class="bi bi-lightning-fill me-2 text-warning"></i>Aksi
+                                    Cepat
+                                </h6>
+                                <div class="d-grid gap-3">
+                                    <a href="<?= BASE_URL ?>pages/administrator/supplier.php"
+                                        class="btn btn-outline-blue-dark btn-lg">
+                                        <i class="bi bi-truck me-2"></i>Kelola Supplier
+                                    </a>
+                                    <a href="<?= BASE_URL ?>pages/administrator/obat.php"
+                                        class="btn btn-outline-blue-light btn-lg">
+                                        <i class="bi bi-capsule me-2"></i>Kelola Obat
+                                    </a>
+                                    <a href="<?= BASE_URL ?>pages/administrator/pengguna.php"
+                                        class="btn btn-outline-green-light btn-lg">
+                                        <i class="bi bi-person-badge me-2"></i>Kelola Pengguna
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card shadow-sm p-3">
-                        <h6>Total Supplier</h6>
-                        <p class="fs-5 fw-semibold mb-0"><?= $totalSupplier ?> Supplier</p>
+
+                <!-- Kolom Data Pengguna per Role -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-4 h-100">
+                        <h6 class="fw-semibold mb-4 mt-2"><i class="bi bi-pie-chart me-2 text-info"></i>Distribusi
+                            Jenis Obat</h6>
+                        <canvas id="jenisObatPieChart" width="600" height="500" class="w-100"
+                            style="max-height: 400px;"></canvas>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card shadow-sm p-3">
-                        <h6>Total Pengguna</h6>
-                        <p class="fs-5 fw-semibold mb-0"><?= $totalPengguna ?> User</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card shadow-sm p-3">
-                        <h6>Total Penerimaan</h6>
-                        <p class="fs-5 fw-semibold mb-0"><?= $totalPenerimaan ?> Transaksi</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card shadow-sm p-3">
-                        <h6>Total Penjualan</h6>
-                        <p class="fs-5 fw-semibold mb-0"><?= $totalPenjualan ?> Transaksi</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-warning text-dark fw-bold">Obat Hampir Habis</div>
-                        <ul class="list-group list-group-flush">
-                            <?php if ($obatHampirHabis && mysqli_num_rows($obatHampirHabis) > 0): ?>
-                                <?php while ($obat = mysqli_fetch_assoc($obatHampirHabis)): ?>
-                                    <li class="list-group-item"><?= $obat['nama_obat'] ?> (Stok: <?= $obat['stok'] ?>)</li>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <li class="list-group-item text-muted">Tidak ada data</li>
-                            <?php endif; ?>
+            </div>
+
+            <!-- Section Tambahan -->
+            <div class="row g-3 mt-3 fade-in">
+                <div class="col-md-12">
+                    <div class="card shadow-sm p-4">
+                        <h6 class="fw-semibold mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Informasi Sistem
+                        </h6>
+                        <ul class="mb-0">
+                            <li>Sistem berjalan sejak <strong>Mei 2025</strong>.</li>
+                            <li>Total pengguna aktif: <?= $totalPengguna ?></li>
+                            <li>Pengembangan terakhir: <strong>Agustus 2025</strong></li>
                         </ul>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-danger text-white fw-bold">Obat Kedaluwarsa < 30 Hari</div>
-                                <ul class="list-group list-group-flush">
-                                    <?php if ($obatKedaluwarsa && mysqli_num_rows($obatKedaluwarsa) > 0): ?>
-                                        <?php while ($obat = mysqli_fetch_assoc($obatKedaluwarsa)): ?>
-                                            <li class="list-group-item"><?= $obat['nama_obat'] ?>
-                                                (<?= date('d-m-Y', strtotime($obat['tgl_kedaluwarsa'])) ?>)</li>
-                                        <?php endwhile; ?>
-                                    <?php else: ?>
-                                        <li class="list-group-item text-muted">Tidak ada data</li>
-                                    <?php endif; ?>
-                                </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-primary text-white fw-bold">5 Obat Terlaris</div>
-                            <div class="card-body">
-                                <canvas id="chartObatTerlaris" height="200"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-success text-white fw-bold">Grafik Penerimaan & Penjualan per
-                                Bulan</div>
-                            <div class="card-body">
-                                <canvas id="chartTransaksiBulanan" height="200"></canvas>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
+<!-- Chart JS & Pie Data -->
 <script>
-    window.labelObat = <?= json_encode($labelObat) ?>;
-    window.dataObat = <?= json_encode($dataObat) ?>;
-    window.labelBulan = <?= json_encode($labelPenerimaan) ?>;
-    window.dataPenerimaan = <?= json_encode($dataPenerimaan) ?>;
-    window.dataPenjualan = <?= json_encode($dataPenjualan) ?>;
+    window.labelJenisObat = <?= json_encode($labelJenis); ?>;
+    window.dataJenisObat = <?= json_encode($dataJenis); ?>;
 </script>
-<script src="<?= BASE_URL ?>js/chart.js"></script>
+
+<script src="<?= BASE_URL ?>js/pie_chart.js?v=<?= time(); ?>"></script>
 <script src="<?= BASE_URL ?>js/active_menu.js"></script>
 </body>
 

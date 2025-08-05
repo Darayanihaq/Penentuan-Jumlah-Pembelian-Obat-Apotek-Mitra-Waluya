@@ -14,7 +14,6 @@ $id_penjualan = $_GET['id'];
 mysqli_begin_transaction($conn);
 
 try {
-    // Ambil semua detail untuk rollback stok
     $details = mysqli_query($conn, "SELECT id_stok, jml_terjual FROM detail_penjualan WHERE id_penjualan = '$id_penjualan'");
     if (!$details) {
         throw new Exception("Gagal mengambil detail penjualan.");
@@ -26,12 +25,10 @@ try {
         }
     }
 
-    // Hapus detail penjualan
     if (!mysqli_query($conn, "DELETE FROM detail_penjualan WHERE id_penjualan = '$id_penjualan'")) {
         throw new Exception("Gagal menghapus detail penjualan.");
     }
 
-    // Hapus transaksi utama
     if (!mysqli_query($conn, "DELETE FROM penjualan_obat WHERE id_penjualan = '$id_penjualan'")) {
         throw new Exception("Gagal menghapus data penjualan.");
     }

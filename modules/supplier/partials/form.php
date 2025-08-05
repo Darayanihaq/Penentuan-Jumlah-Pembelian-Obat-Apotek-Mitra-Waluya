@@ -9,6 +9,7 @@
                 <input type="hidden" name="id_supplier" value="<?= $dataEdit['id_supplier'] ?>">
             </div>
         <?php endif; ?>
+
         <div class="row g-3">
             <div class="col-sm-6 col-md-4 col-lg-3">
                 <label class="form-label">Supplier</label>
@@ -28,6 +29,7 @@
                     value="<?= $isEdit ? htmlspecialchars($dataEdit['no_kontak']) : '' ?>">
             </div>
         </div>
+
         <div class="mt-4">
             <button type="submit" name="<?= $isEdit ? 'update' : 'tambah' ?>" class="btn btn-primary">
                 <i class="bi bi-<?= $isEdit ? 'save' : 'plus' ?>"></i> <?= $isEdit ? 'Update' : 'Tambah' ?>

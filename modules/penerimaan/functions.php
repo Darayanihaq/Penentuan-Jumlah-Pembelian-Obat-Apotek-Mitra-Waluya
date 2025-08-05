@@ -43,3 +43,16 @@ function generatePenerimaanId($conn)
     return 'PN-' . str_pad($newIdNum, 4, '0', STR_PAD_LEFT);
 }
 
+function validasiInputPenerimaan($tgl)
+{
+    return strtotime($tgl) <= strtotime(date('Y-m-d'));
+}
+
+function getDataEditPenerimaan($conn, $id_penerimaan)
+{
+    $result = mysqli_query($conn, "SELECT * FROM penerimaan_obat WHERE id_penerimaan = '$id_penerimaan'");
+    if (mysqli_num_rows($result) > 0) {
+        return mysqli_fetch_assoc($result);
+    }
+    return null;
+}

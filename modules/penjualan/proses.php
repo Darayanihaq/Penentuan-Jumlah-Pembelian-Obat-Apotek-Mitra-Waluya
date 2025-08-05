@@ -3,8 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/../../config/auth.php';
+require_once __DIR__ . '/../../config/config.php';
 
-// Penanganan aksi form berdasarkan tombol yang ditekan
+onlyPengadaan();
+
 if (isset($_POST['tambah'])) {
     include '/handler/tambah_penjualan.php';
 

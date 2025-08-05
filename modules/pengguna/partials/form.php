@@ -9,6 +9,7 @@
                 <input type="hidden" name="id_user" value="<?= $dataEdit['id_user'] ?>">
             </div>
         <?php endif; ?>
+
         <div class="row g-3">
             <div class="col-sm-6 col-md-4 col-lg-3">
                 <label class="form-label">Nama Lengkap</label>
@@ -34,6 +35,7 @@
                     value="<?= $isEdit ? htmlspecialchars($dataEdit['role']) : '' ?>">
             </div>
         </div>
+
         <div class="mt-4">
             <button type="submit" name="<?= $isEdit ? 'update' : 'tambah' ?>" class="btn btn-primary">
                 <i class="bi bi-<?= $isEdit ? 'save' : 'plus' ?>"></i> <?= $isEdit ? 'Update' : 'Tambah' ?>

@@ -36,6 +36,10 @@
                         <th>Error MAPE</th>
                         <td id="detail-mape"></td>
                     </tr>
+                    <tr>
+                        <th>Kategori MAPE</th>
+                        <td id="detail-mape-kategori"></td>
+                    </tr>
                 </table>
             </div>
             <div class="modal-footer">
@@ -50,7 +54,6 @@
         modal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
 
-            // Ambil data dari tombol
             const kodeObat = button.getAttribute('data-kode-obat');
             const namaObat = button.getAttribute('data-nama-obat');
             const jumlah = button.getAttribute('data-jumlah');
@@ -59,7 +62,6 @@
             const mad = button.getAttribute('data-mad');
             const mape = button.getAttribute('data-mape');
 
-            // Masukkan ke elemen dalam modal
             document.getElementById('detail-kode-obat').textContent = kodeObat;
             document.getElementById('detail-nama-obat').textContent = namaObat;
             document.getElementById('detail-jumlah').textContent = jumlah;
@@ -67,6 +69,23 @@
             document.getElementById('detail-hasil').textContent = hasil;
             document.getElementById('detail-mad').textContent = mad;
             document.getElementById('detail-mape').textContent = mape;
+
+            let kategori = '';
+            const mapeFloat = parseFloat(mape);
+            if (isNaN(mapeFloat)) {
+                kategori = 'Tidak Valid';
+            } else if (mapeFloat < 10) {
+                kategori = 'Sangat Baik';
+            } else if (mapeFloat < 20) {
+                kategori = 'Baik';
+            } else if (mapeFloat < 50) {
+                kategori = 'Layak';
+            } else {
+                kategori = 'Buruk';
+            }
+
+            document.getElementById('detail-mape-kategori').textContent = kategori;
+
         });
     });
 </script>

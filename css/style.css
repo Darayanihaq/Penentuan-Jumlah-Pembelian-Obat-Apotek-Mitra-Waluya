@@ -3,8 +3,8 @@ body {
   height: auto;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Hanya sembunyikan horizontal */
-  overflow-y: auto; /* Boleh scroll vertikal */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
@@ -16,6 +16,18 @@ body {
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.bg-blue-dark {
+  background-color: #0a78c4 !important;
+}
+
+.bg-blue-light {
+  background-color: #0e9cff !important;
+}
+
+.bg-green-light {
+  background-color: #8cc617 !important;
 }
 
 .main-header {
@@ -82,7 +94,7 @@ aside {
 
 /* Menu Aktif */
 .nav-link.active-menu {
-  background-color: #4a90e2;
+  background-color: #0a78c4;
   font-weight: 600;
   color: #fff !important;
   border-radius: 6px;
@@ -94,11 +106,11 @@ aside {
 
 .card {
   width: 100%;
-  max-width: 400px;
+  height: auto;
 }
 
 .header-form-data {
-  background-color: #4a90e2;
+  background-color: #0a78c4;
   margin-top: 5px;
   padding: 10px;
 }
@@ -109,7 +121,7 @@ aside {
 }
 
 .btn-primary {
-  background-color: #4a90e2;
+  background-color: #0a78c4;
   border-color: #fff;
   color: #ffffff;
   border-radius: 5px;
@@ -126,24 +138,6 @@ aside {
   padding: 5px 10px;
   font-size: 15px;
   cursor: pointer;
-}
-
-/* ✅ Tambahkan responsivitas untuk layar kecil */
-@media (max-width: 800px) {
-  .table-desain table {
-    font-size: 12px;
-    min-width: 100%; /* agar tabel tetap scrollable */
-  }
-
-  .btn-add {
-    width: 100%;
-    margin-top: 10px;
-    font-size: 13px;
-  }
-
-  .header-form-data {
-    font-size: 14px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -282,4 +276,34 @@ aside {
 #chartObatTerlaris {
   width: 100% !important;
   min-height: 400px;
+}
+
+/* Blue Dark */
+.btn-outline-blue-dark {
+  border: 1px solid #0a78c4;
+  color: #0a78c4;
+}
+.btn-outline-blue-dark:hover {
+  background-color: #0a78c4;
+  color: #fff;
+}
+
+/* Blue Light */
+.btn-outline-blue-light {
+  border: 1px solid #0e9cff;
+  color: #0e9cff;
+}
+.btn-outline-blue-light:hover {
+  background-color: #0e9cff;
+  color: #fff;
+}
+
+/* Green Light (lebih lembut) */
+.btn-outline-green-light {
+  border: 1px solid #8cc617;
+  color: #8cc617;
+}
+.btn-outline-green-light:hover {
+  background-color: #8cc617;
+  color: #fff;
 }

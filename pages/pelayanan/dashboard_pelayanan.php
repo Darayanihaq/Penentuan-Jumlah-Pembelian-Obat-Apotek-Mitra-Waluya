@@ -5,55 +5,51 @@ include '../../config/db.php';
 include '../../templates/header.php';
 onlyPelayanan();
 
-$bulan = date('m');
-$tahun = date('Y');
-
-$query = "
-SELECT o.nama_obat, SUM(d.jml_terjual) AS total_terjual
-FROM detail_penjualan d
-JOIN penjualan_obat p ON d.id_penjualan = p.id_penjualan
-JOIN obat o ON d.kode_obat = o.kode_obat
-WHERE MONTH(p.tgl_penjualan) = $bulan AND YEAR(p.tgl_penjualan) = $tahun
-GROUP BY d.kode_obat
-ORDER BY total_terjual DESC
-LIMIT 10
-";
-$result = mysqli_query($conn, $query);
-
-$labels = [];
-$data = [];
-while ($row = mysqli_fetch_assoc($result)) {
-    $labels[] = $row['nama_obat'];
-    $data[] = $row['total_terjual'];
-}
+include '../../modules/beranda/handler/grafik_penjualan.php';
+include '../../modules/beranda/handler/penjualan_terakhir.php';
 ?>
 
-<!-- Wrapper Layout -->
 <div class="layout-wrapper">
-
-    <!-- Sidebar -->
     <?php include '../../templates/sidebar_pelayanan.php'; ?>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <div class="px-4 py-4">
-            <h2 class="fw-semibold">Beranda</h2>
-            <br>
-            <div class="card" style="width: 100%; max-width: 1000px;">
-                <div class="card-body">
-                    <h5 class="card-title">Obat Terlaris</h5>
-                    <div style="height: 400px; width: 110%;">
-                        <canvas id="chartObatTerlaris"></canvas>
+        <div class="px-3 py-2">
+
+            <!-- Header -->
+            <div class="bg-white shadow-sm p-4 mb-4 rounded fade-in">
+                <h4 class="mb-1 fw-semibold">Selamat Datang, Bagian Pelayanan 👋</h4>
+                <p class="text-muted mb-0">Berikut adalah ringkasan data penting dan akses cepat dalam sistem apotek.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <?php include '../../modules/beranda/partials/grafik_card.php'; ?>
+                <?php include '../../modules/beranda/partials/penjualan_terakhir_card.php'; ?>
+            </div>
+
+            <div class="row g-3 mt-3 fade-in">
+                <div class="col-md-12">
+                    <div class="card shadow-sm p-4">
+                        <h6 class="fw-semibold mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Informasi Sistem
+                        </h6>
+                        <ul class="mb-0">
+                            <li>Sistem berjalan sejak <strong>Mei 2025</strong>.</li>
+                            <li>Pengembangan terakhir: <strong>Agustus 2025</strong></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
 </div>
-<script>
-    const labelObat = <?= json_encode($labels); ?>;
-    const dataObat = <?= json_encode($data); ?>;
+<script type="module">
+    import { renderChart } from '<?= BASE_URL ?>js/line_chart.js';
+
+    const labels = <?= json_encode($labels); ?>;
+    const data = <?= json_encode($data); ?>;
+    const monthLabel = "<?= $nama_bulan . ' ' . $tahun ?>";
+
+    renderChart(labels, data, monthLabel);
 </script>
 <script src="<?= BASE_URL ?>js/chart.js"></script>
 <script src="<?= BASE_URL ?>js/active_menu.js"></script>

@@ -12,8 +12,9 @@ require_once __DIR__ . '/../../peramalan/logic_wma.php';
 
 onlyPengadaan();
 
-$bulan_peramalan = date('F', strtotime("+1 month")); // contoh: "August"
-$tgl_peramalan = date('Y-m-d'); // tanggal hari ini
+$tahun_pembelian = (int) $_POST['tahun_pembelian'];
+$bulan_pembelian = $_POST['bulan_pembelian'];
+$bulan_peramalan = $bulan_pembelian;
 $id_user = $_SESSION['user']['id_user'];
 
 $kode_obat = $_POST['kode_obat'] ?? '';
@@ -28,22 +29,22 @@ if (!is_array($penjualan) || count($penjualan) < 4) {
     exit;
 }
 
+// Gunakan fungsi yang sudah ada untuk WMA
 $forecast_data = hitungWMAArray($penjualan);
-$hasil_peramalan = end($forecast_data);
+$hasil_peramalan = end($forecast_data); // Ambil forecast terakhir
 
-$aktual_mad = array_slice($penjualan, -count($forecast_data));
-$mad = hitungMAD($aktual_mad, $forecast_data);
+// Hitung MAD (bandingkan data aktual dengan forecast)
+$data_aktual_mad = $penjualan;
+$mad = hitungMAD($data_aktual_mad, $forecast_data);
 
-$aktual_mape = array_slice($penjualan, -count($forecast_data));
-$mape = hitungMAPE($aktual_mape, $forecast_data);
+// Hitung MAPE (bandingkan data aktual dengan forecast)
+$data_aktual_mape = $penjualan;
+$mape = hitungMAPE($data_aktual_mape, $forecast_data);
+$jumlah_pembelian = $hasil_peramalan;
 
-$jumlah_pembelian = $hasil_peramalan;  // Inisialisasi awal
-
-// Ambil data stok
 $stok_akhir = ambilStokAkhir($conn, $kode_obat);
 $stok_kedaluwarsa = ambilStokKedaluwarsa($conn, $kode_obat);
 
-// Hitung jumlah pembelian berdasarkan hasil peramalan
 if ($stok_akhir == 0 && $stok_kedaluwarsa == 0) {
     $jumlah_pembelian = $hasil_peramalan + 10;
 } elseif ($stok_kedaluwarsa > 0) {
@@ -53,21 +54,13 @@ if ($stok_akhir == 0 && $stok_kedaluwarsa == 0) {
 }
 $jumlah_pembelian = max(1, round($jumlah_pembelian));
 
-// Cegah pembelian jika 0
-// if ($jumlah_pembelian <= 0) {
-//     $_SESSION['alert'] = ['type' => 'warning', 'message' => 'Jumlah pembelian 0, tidak dapat disimpan.'];
-//     header("Location: " . BASE_URL . "pages/pengadaan/pembelian.php");
-//     exit;
-// }
-
-$harga_obat = getHargaObat($conn, $kode_obat); // Buat fungsi untuk ambil harga dari DB
+$harga_obat = getHargaObat($conn, $kode_obat);
 $total_pembelian = $jumlah_pembelian * $harga_obat;
 
 echo "Peramalan: $hasil_peramalan, Stok akhir: $stok_akhir, Kedaluwarsa: $stok_kedaluwarsa";
 
-// Generate ID
-$id_peramalan = generateIdPeramalan($conn); // pembelian/functions.php
-$id_pembelian = generateIdPembelian($conn); // pembelian/functions.php
+$id_peramalan = generateIdPeramalan($conn);
+$id_pembelian = generateIdPembelian($conn);
 
 try {
     mysqli_begin_transaction($conn);
@@ -75,7 +68,6 @@ try {
     mysqli_query($conn, "
     INSERT INTO peramalan (
             id_peramalan, 
-            tgl_peramalan,
             bulan_peramalan, 
             hasil_peramalan, 
             mad_peramalan, 
@@ -84,7 +76,6 @@ try {
             id_user
         ) VALUES (
             '$id_peramalan',
-            '$tgl_peramalan',
             '$bulan_peramalan',
             $hasil_peramalan,
             $mad,
@@ -98,7 +89,9 @@ try {
     INSERT INTO pembelian (
             id_pembelian, 
             kode_obat, 
-            id_supplier, 
+            id_supplier,
+            bulan_pembelian,
+            tahun_pembelian,
             jml_pembelian, 
             total_pembelian, 
             id_peramalan,
@@ -107,6 +100,8 @@ try {
             '$id_pembelian',
             '$kode_obat',
             '$id_supplier',
+            '$bulan_pembelian',
+            $tahun_pembelian,
             $jumlah_pembelian,
             $total_pembelian,
             '$id_peramalan',

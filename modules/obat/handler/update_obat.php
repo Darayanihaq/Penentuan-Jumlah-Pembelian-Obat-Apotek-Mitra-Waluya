@@ -3,12 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// include '../../../config/db.php';
-// include '../../../config/auth.php';
 include '../../config/config.php';
 onlyAdmin();
 
-$kode_obat = $_POST['kode_obat'];
+$kode_obat = mysqli_real_escape_string($conn, $_POST['kode_obat']);
 $nama_obat = mysqli_real_escape_string($conn, $_POST['nama_obat']);
 $satuan = $_POST['satuan'];
 $jenis = $_POST['jenis'];

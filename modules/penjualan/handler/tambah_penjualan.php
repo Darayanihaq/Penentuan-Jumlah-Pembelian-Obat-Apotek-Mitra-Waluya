@@ -6,32 +6,39 @@ if (session_status() == PHP_SESSION_NONE) {
 require_once __DIR__ . '/../../../config/db.php';
 require_once __DIR__ . '/../functions.php';
 require_once __DIR__ . '/../../../config/auth.php';
-onlyPelayanan();
 
+onlyPelayanan();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_penjualan = generatePenjualanId($conn);
     $tgl_penjualan = $_POST['tgl_penjualan'];
+    $id_user = $_SESSION['user']['id_user'];
     $kode_obat = $_POST['kode_obat'];
     $jml_terjual = (int) $_POST['jml_terjual'];
 
     if (!validasiInputPenjualan($tgl_penjualan, $jml_terjual)) {
-        $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Input tidak valid.'];
+        $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Tanggal atau jumlah tidak valid.'];
         header("Location: ../../../pages/pelayanan/penjualan.php");
         exit;
     }
 
     $penggunaan = kurangiStokFIFO($conn, $kode_obat, $jml_terjual);
-    if ($penggunaan === false) {
-        $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Stok tidak cukup untuk obat yang dipilih.'];
+
+    if (!$penggunaan['status']) {
+        $sisa_stok = $penggunaan['sisa_stok'];
+        $_SESSION['alert'] = [
+            'type' => 'danger',
+            'message' => "Stok tidak cukup. Sisa stok untuk obat ini hanya $sisa_stok."
+        ];
         header("Location: ../../../pages/pelayanan/penjualan.php");
         exit;
     }
 
-    // Simpan ke tabel penjualan_obat
+    $data_penggunaan = $penggunaan['data'];
+
     $insertPenjualan = mysqli_query($conn, "
-        INSERT INTO penjualan_obat (id_penjualan, tgl_penjualan) 
-        VALUES ('$id_penjualan', '$tgl_penjualan')
+        INSERT INTO penjualan_obat (id_penjualan, tgl_penjualan, id_user) 
+        VALUES ('$id_penjualan', '$tgl_penjualan', '$id_user')
     ");
 
     if (!$insertPenjualan) {
@@ -40,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Simpan detail per batch (penggunaan stok)
-    foreach ($penggunaan as $pakai) {
+    foreach ($data_penggunaan as $pakai) {
         $id_detail = generateDetailId($conn);
         $id_stok = $pakai['id_stok'];
         $jml = $pakai['jml_terjual'];
@@ -52,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
 
         if (!$insertDetail) {
-            // Jika gagal simpan detail, rollback stok dan hapus transaksi
             rollbackSemuaDetailPenjualan($conn, $id_penjualan);
             mysqli_query($conn, "DELETE FROM penjualan_obat WHERE id_penjualan = '$id_penjualan'");
             $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Gagal menyimpan detail penjualan.'];

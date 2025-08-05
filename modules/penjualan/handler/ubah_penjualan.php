@@ -16,7 +16,7 @@ $jml_terjual_baru = (int) $_POST['jml_terjual'];
 $id_user = $_SESSION['user']['id_user'];
 
 if (!validasiInputPenjualan($tgl_penjualan, $jml_terjual_baru)) {
-    $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Tanggal atau jumlah tidak valid.'];
+    $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Tanggal tidak valid.'];
     header("Location: ../../../pages/pelayanan/penjualan.php");
     exit;
 }
@@ -24,7 +24,6 @@ if (!validasiInputPenjualan($tgl_penjualan, $jml_terjual_baru)) {
 mysqli_begin_transaction($conn);
 
 try {
-    // 1. Rollback stok lama
     $old = mysqli_query($conn, "SELECT id_stok, jml_terjual FROM detail_penjualan WHERE id_penjualan = '$id_penjualan'");
     while ($row = mysqli_fetch_assoc($old)) {
         if (!tambahStokKembali($conn, $row['id_stok'], $row['jml_terjual'])) {
@@ -32,23 +31,19 @@ try {
         }
     }
 
-    // 2. Hapus detail lama
     if (!mysqli_query($conn, "DELETE FROM detail_penjualan WHERE id_penjualan = '$id_penjualan'")) {
         throw new Exception("Gagal menghapus detail lama.");
     }
 
-    // 3. Update tanggal penjualan
     if (!mysqli_query($conn, "UPDATE penjualan_obat SET tgl_penjualan = '$tgl_penjualan' WHERE id_penjualan = '$id_penjualan'")) {
         throw new Exception("Gagal memperbarui tanggal penjualan.");
     }
 
-    // 4. Cek stok baru (FIFO)
     $stok_check = cekStokObatFIFO($conn, $kode_obat, $jml_terjual_baru);
     if (!$stok_check['cukup'] || empty($stok_check['stok_data'])) {
         throw new Exception("Stok tidak mencukupi untuk jumlah baru.");
     }
 
-    // 5. Simpan detail baru dan kurangi stok
     $sisa = $jml_terjual_baru;
     foreach ($stok_check['stok_data'] as $stok) {
         if ($sisa <= 0)

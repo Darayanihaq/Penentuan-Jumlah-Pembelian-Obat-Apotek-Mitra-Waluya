@@ -14,7 +14,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Kalau hanya loader data, jangan ada proses simpan
-
 header("Location: " . BASE_URL . "pages/pengadaan/pembelian.php");
 exit;

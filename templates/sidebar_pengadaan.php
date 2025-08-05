@@ -1,9 +1,3 @@
-<!-- Tombol Toggle Sidebar (hanya muncul di layar kecil) -->
-<button class="btn btn-outline-secondary d-md-none m-3" type="button" data-bs-toggle="collapse"
-    data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <i class="bi bi-list"></i> Menu
-</button>
-
 <aside id="sidebarMenu" class="bg-white shadow-sm sidebar-fixed">
     <nav class="nav flex-column gap-2">
         <ul class="nav flex-column">
@@ -22,7 +16,7 @@
                 <a class="nav-link d-flex justify-content-between align-items-center text-dark"
                     data-bs-toggle="collapse" href="#transaksiData" role="button" aria-expanded="false"
                     aria-controls="transaksiData">
-                    <span><i class="bi bi-cash-stack fs-6 me-2"></i>Transaksi</span>
+                    <span><i class="bi bi-cash-stack fs-6 me-2"></i>Kelola Transaksi</span>
                     <i class="fas fa-chevron-down"></i>
                 </a>
                 <div class="collapse ps-3 mt-1" id="transaksiData">
@@ -49,7 +43,7 @@
             <li class="nav-item">
                 <a href="<?= BASE_URL ?>pages/pengadaan/pembelian.php"
                     class="nav-link text-dark d-flex align-items-center gap-2">
-                    <i class="bi bi-cart2 fs-5"></i>
+                    <i class="bi bi-basket fs-5"></i>
                     <span>Pembelian</span>
                 </a>
             </li>

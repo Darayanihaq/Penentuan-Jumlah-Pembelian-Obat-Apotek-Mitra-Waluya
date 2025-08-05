@@ -14,7 +14,7 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 $role = $_POST['role'];
 
-// Cek duplikat pengguna
+
 $cek = mysqli_query($conn, "SELECT * FROM pengguna WHERE username = '$username'");
 if (mysqli_num_rows($cek) > 0) {
     $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Username sudah ada dalam database!'];
@@ -23,7 +23,6 @@ if (mysqli_num_rows($cek) > 0) {
 }
 
 $id_user = generateUserId($conn);
-
 $insert = mysqli_query($conn, "INSERT INTO pengguna (id_user, nama_user, username, password, role) 
            VALUES ('$id_user', '$nama_user', '$username', '$password', '$role')");
 

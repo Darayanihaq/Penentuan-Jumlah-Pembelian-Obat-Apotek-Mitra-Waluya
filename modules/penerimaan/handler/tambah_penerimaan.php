@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../../../config/db.php';
 require_once __DIR__ . '/../functions.php';
 require_once __DIR__ . '/../../../config/auth.php';
+
 onlyPengadaan();
 
 $id_penerimaan = generatePenerimaanId($conn);
@@ -16,17 +17,12 @@ $tgl_kedaluwarsa = $_POST['tgl_kedaluwarsa'];
 $kode_obat = $_POST['kode_obat'];
 $id_supplier = $_POST['id_supplier'];
 
-// Validasi apakah obat dan supplier ada
-if (!validasiObatDanSupplier($conn, $kode_obat, $id_supplier)) {
-    $_SESSION['alert'] = [
-        'type' => 'danger',
-        'message' => 'Obat atau supplier tidak ditemukan di database.'
-    ];
-    header("Location: " . $BASE_URL . "pages/pengadaan/penerimaan.php");
-    exit();
+if (!validasiInputPenerimaan($tgl_penerimaan)) {
+    $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Tanggal penerimaan tidak boleh di masa depan.'];
+    header("Location: ../../../pages/pengadaan/penerimaan.php");
+    exit;
 }
 
-// Insert ke tabel penerimaan_obat
 $insert = mysqli_query($conn, "INSERT INTO penerimaan_obat 
     (id_penerimaan, tgl_penerimaan, no_batch, jml_masuk, tgl_kedaluwarsa, id_supplier, kode_obat)
     VALUES 
@@ -46,6 +42,5 @@ if ($insert) {
     ];
 }
 
-
-header("Location: ../../pages/pengadaan/penerimaan.php");
+header("Location: ../../../pages/pengadaan/penerimaan.php");
 exit;

@@ -1,6 +1,3 @@
-<?php
-$jenis_obat_query = mysqli_query($conn, "SELECT DISTINCT jenis FROM obat ORDER BY jenis ASC");
-?>
 <div class="d-flex justify-content-between align-items-center mt-3">
     <div class="search-container">
         <div class="search-box-with-icon">
@@ -10,12 +7,15 @@ $jenis_obat_query = mysqli_query($conn, "SELECT DISTINCT jenis FROM obat ORDER B
     <div class="filter-container">
         <select id="jenisFilter" class="form-select" onchange="filterTable()">
             <option value="">Semua Jenis Obat</option>
-            <?php while ($jenis = mysqli_fetch_assoc($jenis_obat_query)): ?>
-                <option value="<?= htmlspecialchars($jenis['jenis']) ?>"><?= htmlspecialchars($jenis['jenis']) ?></option>
+            <?php while ($jenis = mysqli_fetch_assoc($jenisObatList)): ?>
+                <option value="<?= htmlspecialchars($jenis['jenis']) ?>">
+                    <?= htmlspecialchars($jenis['jenis']) ?>
+                </option>
             <?php endwhile; ?>
         </select>
     </div>
 </div>
+
 <div class="table-responsive mt-3">
     <table class="table table-bordered table-hover table-striped">
         <thead class="table-light">
@@ -39,8 +39,8 @@ $jenis_obat_query = mysqli_query($conn, "SELECT DISTINCT jenis FROM obat ORDER B
                     <td class="text-center"><?= $no++ ?></td>
                     <td class="text-center"><?= $row['kode_obat'] ?></td>
                     <td><?= htmlspecialchars($row['nama_obat']) ?></td>
-                    <td class="text-center"><?= $row['satuan'] ?></td>
-                    <td class="text-center"><?= $row['jenis'] ?></td>
+                    <td><?= $row['satuan'] ?></td>
+                    <td><?= $row['jenis'] ?></td>
                     <td class="text-end">Rp <?= number_format($row['harga_obat']) ?></td>
                     <td class="text-center">
                         <a href="obat.php?edit=<?= $row['kode_obat'] ?>" class="btn btn-warning btn-sm">
@@ -49,35 +49,25 @@ $jenis_obat_query = mysqli_query($conn, "SELECT DISTINCT jenis FROM obat ORDER B
                     </td>
                 </tr>
             <?php endwhile; ?>
-            <?php if (mysqli_num_rows($result) == 0): ?>
-                <tr>
-                    <td colspan="7" class="text-center">Tidak ada data.</td>
-                </tr>
-            <?php endif; ?>
         </tbody>
     </table>
 </div>
 
 <script>
-function filterTable() {
-    const searchInput = document.getElementById('searchInput').value.toLowerCase();
-    const jenisFilter = document.getElementById('jenisFilter').value.toLowerCase();
-    const tbody = document.getElementById('obatTableBody');
-    const rows = tbody.getElementsByTagName('tr');
-
-    for (let row of rows) {
-        const cells = row.getElementsByTagName('td');
-        if (cells.length === 1) continue; // Skip the "Tidak ada data" row
-
-        const namaObat = cells[2].textContent.toLowerCase();
-        const jenisObat = cells[4].textContent.toLowerCase();
-        const kodeObat = cells[1].textContent.toLowerCase();
-
-        const matchSearch = namaObat.includes(searchInput) || 
-                           kodeObat.includes(searchInput);
-        const matchJenis = jenisFilter === '' || jenisObat === jenisFilter;
-
-        row.style.display = (matchSearch && matchJenis) ? '' : 'none';
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Yakin ingin menghapus?',
+            text: "Data yang dihapus tidak dapat dikembalikan.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "../../modules/obat/handler/hapus_obat.php?kode_obat=" + id;
+            }
+        });
     }
-}
 </script>

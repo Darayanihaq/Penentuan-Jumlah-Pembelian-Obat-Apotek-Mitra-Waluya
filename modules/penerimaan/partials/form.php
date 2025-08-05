@@ -3,7 +3,8 @@
 </div>
 
 <div class="form p-4">
-    <form method="POST" action="<?= BASE_URL ?>modules/penerimaan/proses.php">
+    <form method="POST"
+        action="<?= $isEdit ? BASE_URL . 'modules/penerimaan/handler/ubah_penerimaan.php' : BASE_URL . 'modules/penerimaan/handler/tambah_penerimaan.php' ?>">
         <?php if ($isEdit): ?>
             <div class="col-sm-6 col-md-4 col-lg-2">
                 <input type="hidden" name="id_penerimaan" value="<?= $dataEdit['id_penerimaan'] ?>">

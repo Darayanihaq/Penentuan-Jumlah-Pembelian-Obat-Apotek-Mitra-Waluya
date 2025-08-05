@@ -28,7 +28,7 @@
                     <td class="text-center"><?= $row['id_supplier'] ?></td>
                     <td><?= htmlspecialchars($row['nama_supplier']) ?></td>
                     <td><?= $row['alamat'] ?></td>
-                    <td class="text-center"><?= $row['no_kontak'] ?></td>
+                    <td><?= $row['no_kontak'] ?></td>
                     <td class="text-center">
                         <a href="supplier.php?edit=<?= $row['id_supplier'] ?>" class='btn btn-warning btn-sm'>
                             <i class="bi bi-pencil-square"></i>
@@ -44,3 +44,22 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Yakin ingin menghapus?',
+            text: "Data yang dihapus tidak dapat dikembalikan.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "../../modules/supplier/handler/hapus_supplier.php?id_supplier=" + id;
+            }
+        });
+    }
+</script>

@@ -13,3 +13,9 @@ function generateUserId($conn)
         return 'USR01';
     }
 }
+
+function getDataPenggunaById($conn, $id)
+{
+    $result = mysqli_query($conn, "SELECT * FROM pengguna WHERE id_user = '$id'");
+    return mysqli_num_rows($result) > 0 ? mysqli_fetch_assoc($result) : null;
+}

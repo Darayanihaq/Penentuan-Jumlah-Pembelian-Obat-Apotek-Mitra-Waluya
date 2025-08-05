@@ -1,10 +1,3 @@
-<div class="search-container mt-3">
-    <div class="search-box-with-icon">
-        <input type="text" id="searchInput" class="search-input"
-            onkeyup="searchTable('searchInput', 'penggunaTableBody')" placeholder="Cari...">
-    </div>
-</div>
-
 <div class="table-responsive mt-3">
     <table class="table table-bordered table-hover table-striped">
         <thead class="table-light">
@@ -38,11 +31,6 @@
                     </td>
                 </tr>
             <?php endwhile; ?>
-            <?php if (mysqli_num_rows($result) == 0): ?>
-                <tr>
-                    <td colspan="7" class="text-center">Tidak ada data user</td>
-                </tr>
-            <?php endif; ?>
         </tbody>
     </table>
 </div>

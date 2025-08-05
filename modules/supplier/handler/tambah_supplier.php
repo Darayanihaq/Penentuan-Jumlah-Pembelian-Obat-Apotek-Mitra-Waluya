@@ -13,7 +13,6 @@ $nama_supplier = mysqli_real_escape_string($conn, $_POST['nama_supplier']);
 $alamat = $_POST['alamat'];
 $no_kontak = $_POST['no_kontak'];
 
-// Cek duplikat supplier
 $cek = mysqli_query($conn, "SELECT * FROM supplier WHERE nama_supplier = '$nama_supplier'");
 if (mysqli_num_rows($cek) > 0) {
     $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Supplier sudah ada dalam database!'];
@@ -22,7 +21,6 @@ if (mysqli_num_rows($cek) > 0) {
 }
 
 $id_supplier = generateSupplierId($conn);
-
 $insert = mysqli_query($conn, "INSERT INTO supplier (id_supplier, nama_supplier, alamat, no_kontak) 
           VALUES ('$id_supplier', '$nama_supplier', '$alamat', '$no_kontak')");
 

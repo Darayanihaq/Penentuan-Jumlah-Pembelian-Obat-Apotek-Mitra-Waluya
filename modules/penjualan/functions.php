@@ -64,7 +64,6 @@ function validasiInputPenjualan($tgl_penjualan, $jml_terjual)
     return true;
 }
 
-
 function cekStokObatFIFO($conn, $kode_obat, $jumlah)
 {
     $query = "
@@ -95,12 +94,20 @@ function cekStokObatFIFO($conn, $kode_obat, $jumlah)
     return ['cukup' => $total >= $jumlah, 'stok_data' => $stok_data];
 }
 
-
 function kurangiStokFIFO($conn, $kode_obat, $jumlah)
 {
     $stok_info = cekStokObatFIFO($conn, $kode_obat, $jumlah);
-    if (!$stok_info['cukup'])
-        return false;
+    if (!$stok_info['cukup']) {
+        $total_stok = 0;
+        foreach ($stok_info['stok_data'] as $stok) {
+            $total_stok += $stok['jml_stok'];
+        }
+
+        return [
+            'status' => false,
+            'sisa_stok' => $total_stok
+        ];
+    }
 
     $stok_data = $stok_info['stok_data'];
     $sisa = $jumlah;
@@ -115,7 +122,6 @@ function kurangiStokFIFO($conn, $kode_obat, $jumlah)
 
         $update = mysqli_query($conn, "UPDATE stok_obat SET jml_stok = $new_stok WHERE id_stok = {$stok['id_stok']}");
         if (!$update) {
-            // rollback manual jika terjadi error update stok
             error_log("Gagal update stok_obat ID {$stok['id_stok']}: " . mysqli_error($conn));
             return false;
         }
@@ -128,7 +134,10 @@ function kurangiStokFIFO($conn, $kode_obat, $jumlah)
         $sisa -= $pakai;
     }
 
-    return $penggunaan;
+    return [
+        'status' => true,
+        'data' => $penggunaan
+    ];
 }
 
 function rollbackSemuaDetailPenjualan($conn, $id_penjualan)
@@ -157,3 +166,23 @@ function hapusDetailPenjualan($conn, $id_detail)
     // Hapus baris detail_penjualan saja
     mysqli_query($conn, "DELETE FROM detail_penjualan WHERE id_detail = '$id_detail'");
 }
+
+function getDataPenjualanById($conn, $id_penjualan)
+{
+    $stmt = mysqli_prepare($conn, "SELECT p.*, d.jml_terjual, d.kode_obat 
+        FROM penjualan_obat p 
+        JOIN detail_penjualan d ON p.id_penjualan = d.id_penjualan
+        WHERE p.id_penjualan = ? LIMIT 1");
+
+    mysqli_stmt_bind_param($stmt, 's', $id_penjualan);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        return mysqli_fetch_assoc($result);
+    }
+
+    return null;
+}
+
+?>

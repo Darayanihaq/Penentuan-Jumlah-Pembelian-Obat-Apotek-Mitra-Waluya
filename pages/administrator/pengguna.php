@@ -16,35 +16,22 @@ $isEdit = false;
 $dataEdit = null;
 
 if (isset($_GET['edit'])) {
-    $kodeEdit = $_GET['edit'];
-    $result = mysqli_query($conn, "SELECT * FROM pengguna WHERE id_user = '$kodeEdit'");
-    if (mysqli_num_rows($result) > 0) {
-        $isEdit = true;
-        $dataEdit = mysqli_fetch_assoc($result);
-    }
+    $dataEdit = getDataPenggunaById($conn, $_GET['edit']);
+    $isEdit = $dataEdit !== null;
 }
 ?>
 
-<!-- ===== Layout wrapper dimulai ===== -->
 <div class="layout-wrapper">
-
-    <!-- Sidebar tetap di kiri -->
     <?php include '../../templates/sidebar_administrator.php'; ?>
 
-    <!-- Main Content yang scroll -->
     <main class="main-content">
         <div class="px-4 py-4">
             <h2 class="h5 pb-2">Data Pengguna</h2>
-
-            <?php if ($alert): ?>
-                <?php include '../../components/alert.php'; ?>
-            <?php endif; ?>
-
+            <?php include '../../components/alert.php'; ?>
             <?php include '../../modules/pengguna/partials/form.php'; ?>
             <?php include '../../modules/pengguna/partials/table.php'; ?>
         </div>
     </main>
-
 </div>
 
 <script src="<?= BASE_URL ?>js/active_menu.js"></script>

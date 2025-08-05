@@ -22,38 +22,46 @@ function hitungWMAArray(array $data): array
 }
 
 
-function hitungMAD($aktual, $forecast)
+function hitungMAD(array $aktual, array $forecast): float
 {
     $n = count($aktual);
-    $total = 0;
-    for ($i = 0; $i < $n; $i++) {
-        $total += abs($aktual[$i] - $forecast[$i]);
+    $totalError = 0;
+
+    foreach ($aktual as $value) {
+        $totalError += abs($value - $forecast[0]);
     }
-    return round($total / $n, 2);
+
+    return round($totalError / $n, 2);
 }
 
 function hitungMAPE(array $aktual, array $forecast): float
 {
     $n = count($aktual);
+    $totalPercentage = 0;
+    $validCount = 0;
 
-    if ($n === 0 || $n !== count($forecast)) {
-        return 0; // data tidak valid
+    foreach ($aktual as $value) {
+        if ($value != 0) {
+            $totalPercentage += abs($value - $forecast[0]) / $value;
+            $validCount++;
+        }
     }
 
-    $sum_error = 0;
-    $valid_data = 0;
-
-    for ($i = 0; $i < $n; $i++) {
-        if ($aktual[$i] == 0)
-            continue; // hindari pembagian nol
-
-        $error = abs($aktual[$i] - $forecast[$i]) / $aktual[$i];
-        $sum_error += $error;
-        $valid_data++;
-    }
-
-    return $valid_data > 0 ? round(($sum_error / $valid_data) * 100, 2) : 0;
+    return $validCount > 0 ? round(($totalPercentage / $validCount) * 100, 2) : 0.0;
 }
 
+
+function getKategoriMAPE(float $mape): string
+{
+    if ($mape < 10) {
+        return "Sangat Baik";
+    } elseif ($mape < 20) {
+        return "Baik";
+    } elseif ($mape < 50) {
+        return "Layak";
+    } else {
+        return "Buruk";
+    }
+}
 
 

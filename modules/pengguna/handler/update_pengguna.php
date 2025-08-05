@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 include '../../config/config.php';
+
 onlyAdmin();
 
 

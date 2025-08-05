@@ -24,3 +24,9 @@ function generateKodeObat($conn, $jenis)
     }
     return $prefix . '-' . $new_number;
 }
+
+function getDataObatByKode($conn, $kode)
+{
+    $result = mysqli_query($conn, "SELECT * FROM obat WHERE kode_obat = '$kode'");
+    return (mysqli_num_rows($result) > 0) ? mysqli_fetch_assoc($result) : null;
+}

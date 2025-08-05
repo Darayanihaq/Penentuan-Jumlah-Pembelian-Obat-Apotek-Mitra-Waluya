@@ -1,3 +1,46 @@
+<?php
+$query = "
+                SELECT p.*, o.nama_obat, o.jenis, s.nama_supplier
+                FROM penerimaan_obat p
+                JOIN obat o ON p.kode_obat = o.kode_obat
+                JOIN supplier s ON p.id_supplier = s.id_supplier
+                WHERE 1
+            ";
+
+if (!empty($_GET['bulan'])) {
+    $bulan = (int) $_GET['bulan'];
+    $query .= " AND MONTH(p.tgl_penerimaan) = $bulan";
+}
+
+if (!empty($_GET['tahun'])) {
+    $tahun = (int) $_GET['tahun'];
+    $query .= " AND YEAR(p.tgl_penerimaan) = $tahun";
+}
+
+$query .= " ORDER BY p.tgl_penerimaan DESC";
+try {
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    $result = mysqli_query($conn, $query);
+} catch (Exception $e) {
+    die("Query error: " . $e->getMessage());
+}
+
+$bulanIndonesia = [
+    1 => 'Januari',
+    2 => 'Februari',
+    3 => 'Maret',
+    4 => 'April',
+    5 => 'Mei',
+    6 => 'Juni',
+    7 => 'Juli',
+    8 => 'Agustus',
+    9 => 'September',
+    10 => 'Oktober',
+    11 => 'November',
+    12 => 'Desember'
+];
+?>
+
 <form method="GET" class="row g-2 mb-3" style="padding-top: 15px;">
     <div class="col-md-1">
         <select name="bulan" id="bulan" class="form-select">

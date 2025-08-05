@@ -1,8 +1,12 @@
 <?php
-
 function ambilStokAkhir(mysqli $conn, string $kode_obat): int
 {
-    $query = "SELECT SUM(jml_stok) AS total FROM stok_obat WHERE kode_obat = ?";
+    $query = "
+        SELECT SUM(s.jml_stok) AS total
+        FROM stok_obat s
+        JOIN obat o ON s.kode_obat = o.kode_obat
+        WHERE o.kode_obat = ?
+    ";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, 's', $kode_obat);
     mysqli_stmt_execute($stmt);
@@ -10,6 +14,7 @@ function ambilStokAkhir(mysqli $conn, string $kode_obat): int
     $data = mysqli_fetch_assoc($result);
     return (int) ($data['total'] ?? 0);
 }
+
 
 function ambilStokKedaluwarsa(mysqli $conn, string $kode_obat, int $bulan_terakhir = 4): int
 {
@@ -59,4 +64,7 @@ function getHargaObat($conn, $kode_obat)
     $data = mysqli_fetch_assoc($query);
     return $data['harga_obat'];
 }
+
+
+
 

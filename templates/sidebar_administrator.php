@@ -1,9 +1,3 @@
-<!-- Tombol Toggle Sidebar (hanya muncul di layar kecil) -->
-<button class="btn btn-outline-secondary d-md-none m-3" type="button" data-bs-toggle="collapse"
-    data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <i class="bi bi-list"></i> Menu
-</button>
-
 <aside id="sidebarMenu" class="bg-white shadow-sm sidebar-fixed">
     <nav class="nav flex-column gap-2">
         <ul class="nav flex-column">

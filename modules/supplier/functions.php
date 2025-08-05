@@ -13,3 +13,10 @@ function generateSupplierId($conn)
         return 'SP-001';
     }
 }
+
+function getSupplierById($conn, $id)
+{
+    $id = mysqli_real_escape_string($conn, $id);
+    $result = mysqli_query($conn, "SELECT * FROM supplier WHERE id_supplier = '$id'");
+    return (mysqli_num_rows($result) > 0) ? mysqli_fetch_assoc($result) : null;
+}

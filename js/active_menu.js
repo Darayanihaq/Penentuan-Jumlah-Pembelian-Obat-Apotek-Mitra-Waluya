@@ -30,7 +30,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  if (["penerimaan", "penjualan"].some((k) => currentPath.includes(k))) {
+  if (
+    ["penerimaan", "penjualan", "pembelian"].some((k) =>
+      currentPath.includes(k)
+    )
+  ) {
     const transaksi = document.getElementById("transaksiData");
     if (transaksi && !transaksi.classList.contains("show")) {
       transaksi.classList.add("show");

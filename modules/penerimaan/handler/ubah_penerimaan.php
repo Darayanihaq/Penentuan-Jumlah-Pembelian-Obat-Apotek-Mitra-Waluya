@@ -3,9 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include '../../../config/db.php';
-include '../../../config/auth.php';
-include '../../config/config.php';
+require_once __DIR__ . '/../../../config/config.php';
+require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../functions.php';
+require_once __DIR__ . '/../../../config/auth.php';
 onlyPengadaan();
 
 $id_penerimaan = $_POST['id_penerimaan'];
@@ -19,18 +20,15 @@ $id_supplier = $_POST['id_supplier'];
 mysqli_begin_transaction($conn);
 
 try {
-    // Validasi obat & supplier
     if (!validasiObatDanSupplier($conn, $kode_obat, $id_supplier)) {
         throw new Exception('Obat atau supplier tidak ditemukan dalam database.');
     }
 
-    // Ambil data lama untuk update stok
     $data_lama = ambilPenerimaan($conn, $id_penerimaan);
     if (!$data_lama) {
         throw new Exception('Data penerimaan tidak ditemukan.');
     }
 
-    // Update penerimaan
     $update = mysqli_query($conn, "UPDATE penerimaan_obat SET 
         tgl_penerimaan = '$tgl_penerimaan',
         no_batch = '$no_batch',
@@ -44,12 +42,10 @@ try {
         throw new Exception('Gagal memperbarui data penerimaan: ' . mysqli_error($conn));
     }
 
-    // Update stok
     if (!updateStokSetelahEdit($conn, $id_penerimaan, $jml_masuk, $data_lama['jml_masuk'])) {
         throw new Exception('Gagal memperbarui stok.');
     }
 
-    // Commit jika semua berhasil
     mysqli_commit($conn);
     $_SESSION['alert'] = [
         'type' => 'success',
@@ -57,7 +53,6 @@ try {
     ];
 
 } catch (Exception $e) {
-    // Rollback jika ada error
     mysqli_rollback($conn);
     $_SESSION['alert'] = [
         'type' => 'danger',

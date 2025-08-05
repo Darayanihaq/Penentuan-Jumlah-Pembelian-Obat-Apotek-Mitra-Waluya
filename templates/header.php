@@ -35,11 +35,10 @@ $role = ucfirst($_SESSION['role']); // admin → Admin
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>css/style.css" />
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
