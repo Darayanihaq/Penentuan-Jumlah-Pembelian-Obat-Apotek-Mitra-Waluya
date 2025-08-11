@@ -1,6 +1,6 @@
 <div class="col-md-8">
     <div class="card shadow-sm border-0">
-        <div class="card-header text-dark rounded-top py-3" style="background-color: #8cc617;">
+        <div class="card-header text-white rounded-top py-3" style="background-color: #0a78c4;">
             <h5 class="mt-1 mb-1 fw-semibold">Grafik Penjualan Obat - Bulan <?= $nama_bulan . ' ' . $tahun ?></h5>
         </div>
         <div class="card-body mt-2">

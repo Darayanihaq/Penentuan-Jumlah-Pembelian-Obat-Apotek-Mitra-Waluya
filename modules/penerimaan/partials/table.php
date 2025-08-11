@@ -96,9 +96,9 @@ $bulanIndonesia = [
                     <td><?= $row['nama_supplier'] ?></td>
                     <td><?= $row['nama_obat'] ?></td>
                     <td><?= $row['jenis'] ?></td>
-                    <td class="text-center"><?= $row['tgl_penerimaan'] ?></td>
-                    <td class="text-center"><?= $row['no_batch'] ?></td>
-                    <td class="text-center"><?= $row['tgl_kedaluwarsa'] ?></td>
+                    <td><?= $row['tgl_penerimaan'] ?></td>
+                    <td><?= $row['no_batch'] ?></td>
+                    <td><?= $row['tgl_kedaluwarsa'] ?></td>
                     <td class="text-center"><?= $row['jml_masuk'] ?></td>
                     <td class="text-center">
                         <a href="?edit=<?= $row['id_penerimaan'] ?>" class="btn btn-sm btn-warning">

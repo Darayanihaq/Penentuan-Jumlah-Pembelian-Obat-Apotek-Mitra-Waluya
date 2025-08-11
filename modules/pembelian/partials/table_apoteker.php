@@ -79,7 +79,7 @@ try {
     </div>
 
     <div class="col-md-1 ms-auto mt-4">
-        <a href="laporan_pembelian.php?bulan=<?= $_GET['bulan'] ?? '' ?>&tahun=<?= $_GET['tahun'] ?? '' ?>"
+        <a href="../../modules/pembelian/handler/laporan_pembelian.php?bulan=<?= $_GET['bulan'] ?? '' ?>&tahun=<?= $_GET['tahun'] ?? '' ?>"
             target="_blank" class="btn btn-sm btn-success w-100">
             <i class="bi bi-file-earmark-excel"></i> Ekspor Excel
         </a>

@@ -1,6 +1,6 @@
 <div class="col-md-4">
     <div class="card shadow-sm border-0 h-100">
-        <div class="px-3 py-3 text-white fw-semibold rounded-top" style="background-color: #0e9cff;">
+        <div class="px-3 py-3 text-white fw-semibold rounded-top" style="background-color: #0a78c4;">
             <h5 class="mb-0 mt-1">Data Penjualan Obat Terakhir</h5>
         </div>
         <div class="card-body pt-1 overflow-auto">
